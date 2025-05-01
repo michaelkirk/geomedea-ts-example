@@ -1,10 +1,11 @@
 import { HttpReader } from 'geomedea/geomedea.js';
-import { BoundingBox, FeatureCollection } from '../types';
+import { FeatureCollection } from 'geojson';
+import { BoundingBox } from '../types';
 import { initGeomedea, assertWasmLoaded, makeAbsolutePath, addIdsToFeatures } from '../utils';
-
-// Import maplibregl and underscore types without importing the libraries (already loaded in HTML)
-declare const maplibregl: any;
-declare const _: any;
+import * as maplibregl from 'maplibre-gl';
+import { GeoJSONSource } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import * as _ from 'underscore';
 
 async function getFeatureCollection(bbox: BoundingBox): Promise<FeatureCollection> {
   assertWasmLoaded();
@@ -69,7 +70,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const bbox = getBoundingBox();
     console.log("updating results with bbox", bbox);
     const featureCollection = await getFeatureCollection(bbox);
-    map.getSource("counties").setData(featureCollection);
+    const countiesSource = (map.getSource("counties") as GeoJSONSource)!;
+    countiesSource.setData(featureCollection);
   };
 
   map.on("load", () => {
@@ -145,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         hoveredStateId = e.features[0].id;
         map.setFeatureState(
-          { source: "counties", id: hoveredStateId },
+          { source: "counties", id: hoveredStateId! },
           { hover: true }
         );
       }
@@ -170,14 +172,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateResults = _.throttle(updateResults, 1000);
 
     // Show rectangle for bounding box
-    map.getSource("rectangle").setData(getRect(getBoundingBox()));
+    (map.getSource("rectangle") as GeoJSONSource)!.setData(getRect(getBoundingBox()));
 
     // Initial update
     updateResults();
 
     // Update on map move
     map.on("moveend", () => {
-      map.getSource("rectangle").setData(getRect(getBoundingBox()));
+      (map.getSource("rectangle") as GeoJSONSource)!.setData(getRect(getBoundingBox()));
       updateResults();
     });
   });

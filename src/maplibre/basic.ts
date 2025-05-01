@@ -1,9 +1,8 @@
 import { HttpReader } from 'geomedea/geomedea.js';
-import { FeatureCollection } from '../types';
+import { FeatureCollection } from 'geojson';
 import { initGeomedea, assertWasmLoaded, makeAbsolutePath, addIdsToFeatures } from '../utils';
-
-// Import maplibregl type without importing the library (already loaded in HTML)
-declare const maplibregl: any;
+import * as maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 async function getFeatureCollection(): Promise<FeatureCollection> {
   assertWasmLoaded();
@@ -88,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         hoveredStateId = e.features[0].id;
         map.setFeatureState(
-          { source: "counties", id: hoveredStateId },
+          { source: "counties", id: hoveredStateId! },
           { hover: true }
         );
       }

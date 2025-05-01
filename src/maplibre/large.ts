@@ -1,10 +1,11 @@
 import { HttpReader } from 'geomedea/geomedea.js';
-import { BoundingBox, FeatureCollection } from '../types';
+import { FeatureCollection } from 'geojson'; 
+import { BoundingBox } from '../types';
 import { initGeomedea, assertWasmLoaded, makeAbsolutePath, addIdsToFeatures } from '../utils';
-
-// Import maplibregl and underscore types without importing the libraries (already loaded in HTML)
-declare const maplibregl: any;
-declare const _: any;
+import * as maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import * as _ from 'underscore';
+import { GeoJSONSource } from 'maplibre-gl';
 
 // This example is similar to filtered.ts but demonstrates working with a larger dataset
 // For this example, we're still using the same dataset but simulating a larger one
@@ -74,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const bbox = getBoundingBox();
     console.log("updating results with bbox", bbox);
     const featureCollection = await getFeatureCollection(bbox);
-    map.getSource("blocks").setData(featureCollection);
+    (map.getSource("blocks") as GeoJSONSource)!.setData(featureCollection);
   };
 
   map.on("load", () => {
@@ -85,8 +86,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     
     // Population-based coloring
-    const pop = ["to-number", ["get", "population"], 0];
-    const color = [
+    const pop: maplibregl.ExpressionSpecification = ["to-number", ["get", "population"], 0];
+    const color: maplibregl.DataDrivenPropertyValueSpecification<string> = [
       "case",
       [">", pop, 750], "#800026",
       [">", pop, 500], "#BD0026",
@@ -165,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         hoveredStateId = e.features[0].id;
         map.setFeatureState(
-          { source: "blocks", id: hoveredStateId },
+          { source: "blocks", id: hoveredStateId! },
           { hover: true }
         );
       }
@@ -190,14 +191,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateResults = _.throttle(updateResults, 1000);
 
     // Show rectangle for bounding box
-    map.getSource("rectangle").setData(getRect(getBoundingBox()));
+    (map.getSource("rectangle") as GeoJSONSource)!.setData(getRect(getBoundingBox()));
 
     // Initial update
     updateResults();
 
     // Update on map move
     map.on("moveend", () => {
-      map.getSource("rectangle").setData(getRect(getBoundingBox()));
+      (map.getSource("rectangle") as GeoJSONSource)!.setData(getRect(getBoundingBox()));
       updateResults();
     });
   });

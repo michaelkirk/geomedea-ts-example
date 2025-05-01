@@ -1,4 +1,4 @@
-import { Feature, FeatureCollection } from './types';
+import { FeatureCollection, Feature } from 'geojson';
 import initWasm, { HttpReader } from 'geomedea/geomedea.js';
 
 // Initialize WASM

@@ -13,11 +13,17 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "geomedea": "^0.1.0"
+    "@types/underscore": "^1.13.0",
+    "geomedea": "^0.1.0",
+    "maplibre-gl": "^5.4.0",
+    "underscore": "^1.13.7"
   },
   "devDependencies": {
+    "@types/geojson": "^7946.0.16",
     "copy-webpack-plugin": "^13.0.0",
+    "css-loader": "^7.1.2",
     "http-server": "^14.1.1",
+    "style-loader": "^4.0.0",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
     "webpack": "^5.99.7",
