@@ -12,9 +12,8 @@ declare const _: any;
 async function getFeatureCollection(bbox: BoundingBox): Promise<FeatureCollection> {
   assertWasmLoaded();
   
-  // In a real scenario, this would be a path to a larger dataset
-  const relativeInput = "/../files/test_fixtures/USCounties-compressed.geomedea";
-  const input = makeAbsolutePath(relativeInput);
+  // Use a remotely hosted large dataset
+  const input = "https://d3imsg4yynhh83.cloudfront.net/test-data/population_areas.geomedea";
 
   const httpReader = new HttpReader(input);
   const featureCollectionString = await httpReader.select_bbox(
@@ -52,16 +51,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const map = new maplibregl.Map({
     container: "map",
     style: "https://demotiles.maplibre.org/style.json",
-    center: [-104, 39],
-    zoom: 5,
-    maxZoom: 8,
+    center: [-73.98, 40.766],
+    zoom: 13,
+    maxZoom: 18,
+    minZoom: 12,
   });
 
-  // Get a rect around the map center - use a smaller bounding box for this example
-  // to demonstrate filtering with higher precision
+  // Get a rect around the map center
   function getBoundingBox(): BoundingBox {
     const { lng, lat } = map.getCenter();
-    const size = 2; // Smaller box than in the filtered example
+    const { _sw, _ne } = map.getBounds();
+    const size = Math.min(_ne.lng - lng, _ne.lat - lat) * 0.8;
     return { 
       minX: lng - size, 
       minY: lat - size, 
@@ -74,69 +74,53 @@ document.addEventListener("DOMContentLoaded", async () => {
     const bbox = getBoundingBox();
     console.log("updating results with bbox", bbox);
     const featureCollection = await getFeatureCollection(bbox);
-    
-    // Display the number of features loaded
-    const featuresCount = featureCollection.features.length;
-    const countDisplay = document.getElementById('features-count');
-    if (countDisplay) {
-      countDisplay.textContent = featuresCount.toString();
-    }
-    
-    map.getSource("counties").setData(featureCollection);
+    map.getSource("blocks").setData(featureCollection);
   };
 
   map.on("load", () => {
-    // Create a display for the number of features
-    const mapContainer = document.getElementById('map');
-    if (mapContainer) {
-      const countDisplay = document.createElement('div');
-      countDisplay.id = 'features-count';
-      countDisplay.style.position = 'absolute';
-      countDisplay.style.bottom = '10px';
-      countDisplay.style.right = '10px';
-      countDisplay.style.backgroundColor = 'white';
-      countDisplay.style.padding = '5px';
-      countDisplay.style.borderRadius = '3px';
-      countDisplay.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
-      countDisplay.style.zIndex = '1';
-      countDisplay.textContent = '0';
-      
-      const label = document.createElement('span');
-      label.textContent = 'Features loaded: ';
-      
-      countDisplay.prepend(label);
-      mapContainer.appendChild(countDisplay);
-    }
-
-    // Add empty counties source
-    map.addSource("counties", {
+    // Add empty blocks source for census data
+    map.addSource("blocks", {
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
     });
     
-    // Add counties layers
+    // Population-based coloring
+    const pop = ["to-number", ["get", "population"], 0];
+    const color = [
+      "case",
+      [">", pop, 750], "#800026",
+      [">", pop, 500], "#BD0026",
+      [">", pop, 250], "#E31A1C",
+      [">", pop, 100], "#FC4E2A",
+      [">", pop, 50], "#FD8D3C",
+      [">", pop, 25], "#FEB24C",
+      [">", pop, 10], "#FED976",
+      "#FF0000",
+    ];
+    
+    // Add blocks layers
     map.addLayer({
-      id: "counties-fill",
+      id: "blocks-fill",
       type: "fill",
-      source: "counties",
+      source: "blocks",
       paint: {
-        "fill-color": "#0000FF",
+        "fill-color": color,
         "fill-opacity": [
           "case",
           ["boolean", ["feature-state", "hover"], false],
-          1,
-          0.5
+          0.8,
+          0.4
         ],
       },
     });
     
     map.addLayer({
-      id: "counties-line",
+      id: "blocks-line",
       type: "line",
-      source: "counties",
+      source: "blocks",
       paint: {
-        "line-color": "#0000FF",
-        "line-opacity": 0.9,
+        "line-color": color,
+        "line-opacity": 0.8,
         "line-width": 2,
       },
     });
@@ -149,18 +133,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     map.addLayer({
       id: "rectangle",
-      type: "fill",
+      type: "line",
       source: "rectangle",
       paint: {
-        "fill-color": "#FFFF00",
-        "fill-opacity": 0.7,
+        "line-color": "#0000FF",
+        "line-opacity": 0.9,
+        "line-width": 3,
       },
     });
 
     // Handle click events
-    map.on("click", "counties-fill", (e: any) => {
+    map.on("click", "blocks-fill", (e: any) => {
       const props = e.features[0].properties;
-      const html = `<h1>${props.NAME} ${props.LSAD}, ${props.STATE}</h1>`;
+      const html = `${props.population} people live in this census block.`;
       new maplibregl.Popup()
         .setLngLat(e.lngLat)
         .setHTML(html)
@@ -170,31 +155,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Handle hover events
     let hoveredStateId: number | null = null;
     
-    map.on("mousemove", "counties-fill", (e: any) => {
+    map.on("mousemove", "blocks-fill", (e: any) => {
       if (e.features.length > 0) {
         if (hoveredStateId !== null) {
           map.setFeatureState(
-            { source: "counties", id: hoveredStateId },
+            { source: "blocks", id: hoveredStateId },
             { hover: false }
           );
         }
         hoveredStateId = e.features[0].id;
         map.setFeatureState(
-          { source: "counties", id: hoveredStateId },
+          { source: "blocks", id: hoveredStateId },
           { hover: true }
         );
       }
     });
     
-    map.on("mouseenter", "counties-fill", () => {
+    map.on("mouseenter", "blocks-fill", () => {
       map.getCanvas().style.cursor = "pointer";
     });
     
-    map.on("mouseleave", "counties-fill", () => {
+    map.on("mouseleave", "blocks-fill", () => {
       map.getCanvas().style.cursor = "";
       if (hoveredStateId !== null) {
         map.setFeatureState(
-          { source: "counties", id: hoveredStateId },
+          { source: "blocks", id: hoveredStateId },
           { hover: false }
         );
       }

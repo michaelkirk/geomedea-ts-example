@@ -8,7 +8,7 @@ declare const maplibregl: any;
 async function getFeatureCollection(): Promise<FeatureCollection> {
   assertWasmLoaded();
   
-  const relativeInput = "/../files/test_fixtures/USCounties-compressed.geomedea";
+  const relativeInput = "../../../files/test_fixtures/USCounties-compressed.geomedea";
   const input = makeAbsolutePath(relativeInput);
 
   const httpReader = new HttpReader(input);
