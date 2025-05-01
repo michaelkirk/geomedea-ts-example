@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <title>MapLibre Basic Example - Geomedea TypeScript</title>
+    <link rel="stylesheet" href="../site.css" />
+    <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
+</head>
+<body>
+    <ul class="primary-navigation">
+        <li class="active">
+            MapLibre Example
+        </li>
+    </ul>
+    <ul class="secondary-navigation">
+        <li class="active">Basic Example</li>
+        <li><a href="filtered.html">Filter By Rect</a></li>
+        <li><a href="large.html">Filtering a Large Dataset</a></li>
+    </ul>
+
+    <style>
+        #map { height: 480px; }
+    </style>
+    <div id="map"></div>
+    <p>
+    This basic example shows how to render all the features in a Geomedea
+    onto a <a href="https://maplibre.org/maplibre-gl-js-docs/">MapLibre</a> map.  It shows
+    per-feature properties when you click on each feature. This will work almost exactly
+    the same for Mapbox GL JS, just add an account key and load the Mapbox libraries instead.
+    </p>
+    <script src="../maplibreBasic.js"></script>
+</body>
+</html>

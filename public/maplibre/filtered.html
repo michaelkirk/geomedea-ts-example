@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <title>MapLibre Filtered Example - Geomedea TypeScript</title>
+    <link rel="stylesheet" href="../site.css" />
+    <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/underscore@1.13.1/underscore-min.js"></script>
+</head>
+<body>
+    <ul class="primary-navigation">
+        <li class="active">
+            MapLibre Example
+        </li>
+    </ul>
+    <ul class="secondary-navigation">
+        <li><a href="basic.html">Basic Example</a></li>
+        <li class="active">Filter By Rect</li>
+        <li><a href="large.html">Filtering a Large Dataset</a></li>
+    </ul>
+
+    <style>
+        #map { height: 480px; }
+    </style>
+    <div id="map"></div>
+    <p>
+        Geomedea's spatial index allows you to fetch the features that
+        intersect a given bounding box, without downloading the entire file.
+        This can be helpful when you have a very large file but are only
+        interested in a small portion of it, and want to keep your page loads
+        small and fast.
+    </p>
+    <p>
+        For the purposes of the example we've highlighted our bounding box in
+        yellow. Pan the map to move the query's bounding box.
+    </p>
+    <p>
+        Open your developer console's network pane, and inspect the network
+        traffic. Compared to the <a href="basic.html">example which loads the entire file</a>,
+        you'll see that this example makes more requests for the .geomedea file, but
+        they are much smaller because we fetch only the relevant sections of
+        the file, and parts of the index which we use to find where those features live.
+    </p>
+    <script src="../maplibreFiltered.js"></script>
+</body>
+</html>

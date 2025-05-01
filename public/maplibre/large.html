@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <title>MapLibre Large Dataset Example - Geomedea TypeScript</title>
+    <link rel="stylesheet" href="../site.css" />
+    <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/underscore@1.13.1/underscore-min.js"></script>
+</head>
+<body>
+    <ul class="primary-navigation">
+        <li class="active">
+            MapLibre Example
+        </li>
+    </ul>
+    <ul class="secondary-navigation">
+        <li><a href="basic.html">Basic Example</a></li>
+        <li><a href="filtered.html">Filter By Rect</a></li>
+        <li class="active">Filtering a Large Dataset</li>
+    </ul>
+
+    <style>
+        #map { height: 480px; }
+    </style>
+    <div id="map"></div>
+    <p>
+        This example is similar to the <a href="filtered.html">Filter By Rect</a> example,
+        but demonstrates filtering on a larger dataset. This shows one of the key benefits
+        of using Geomedea - the ability to efficiently load and render only the data you need,
+        even from very large geographic datasets.
+    </p>
+    <script src="../maplibreLarge.js"></script>
+</body>
+</html>
